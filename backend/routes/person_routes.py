@@ -1,6 +1,6 @@
 from typing import Any, Dict, List
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
 
 from database.crud import (
     add_object,
@@ -10,22 +10,28 @@ from database.crud import (
     update_object, search_objects,
 )
 from schemas.person_schemas import Person, PersonCreate, PersonUpdate
+from schemas.user_schemas import TokenData
+from utils.auth_utils import is_admin
+from utils.token_manage import get_current_user
 
 person_router = APIRouter()
 
 
 @person_router.get("/", response_model=List[Person])
-async def get_persons() -> List[Any]:
+async def get_persons(token_data: TokenData = Depends(get_current_user)) -> List[Any]:
+    is_admin(token_data)
     return await get_all_objects("persons")
 
 
 @person_router.get("/{person_id}", response_model=Person)
-async def get_person(person_id: str) -> Any:
+async def get_person(person_id: str, token_data: TokenData = Depends(get_current_user)) -> Any:
+    is_admin(token_data)
     return await get_object("persons", person_id)
 
 
 @person_router.post("/", response_model=Person)
-async def create_person(person: PersonCreate) -> Any:
+async def create_person(person: PersonCreate, token_data: TokenData = Depends(get_current_user)) -> Any:
+    is_admin(token_data)
     search_person = await search_objects("persons", "email", person.email)
     if search_person:
         raise HTTPException(
@@ -36,12 +42,14 @@ async def create_person(person: PersonCreate) -> Any:
 
 
 @person_router.patch("/{person_id}", response_model=Person)
-async def update_person(person_id: str, person: PersonUpdate) -> Any:
+async def update_person(person_id: str, person: PersonUpdate, token_data: TokenData = Depends(get_current_user)) -> Any:
+    is_admin(token_data)
     return await update_object("persons", person_id, dict(person))
 
 
 @person_router.delete("/{person_id}")
-async def delete_person(person_id: str) -> Dict[str, str]:
+async def delete_person(person_id: str, token_data: TokenData = Depends(get_current_user)) -> Dict[str, str]:
+    is_admin(token_data)
     person_deleted = await delete_object("persons", person_id)
     if person_deleted == 1:
         return {"message": "Person deleted successfully"}
