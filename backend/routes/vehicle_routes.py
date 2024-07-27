@@ -1,11 +1,14 @@
 from typing import List
 
-from fastapi import APIRouter, Query, HTTPException, status
+from fastapi import APIRouter, Query, HTTPException, status, Depends
 from pydantic import EmailStr
 
 from database.crud import search_objects, update_object
 from schemas.person_schemas import Person
+from schemas.user_schemas import TokenData
 from schemas.vehicle_schemas import Vehicle
+from utils.auth_utils import is_admin
+from utils.token_manage import get_current_user
 
 vehicle_router = APIRouter()
 
@@ -16,8 +19,10 @@ async def get_vehicles_by_person(
             ...,
             example="example@mail.com",
             title="Person Email", description="Person Email"
-        )
+        ),
+        token_data: TokenData = Depends(get_current_user)
 ):
+    is_admin(token_data)
     person_search = await search_objects("persons", "email", person_email)
     if not person_search:
         raise HTTPException(
@@ -32,8 +37,10 @@ async def get_vehicles_by_person(
 @vehicle_router.get("/{patent_plate}", response_model=Vehicle)
 async def get_vehicle(
         patent_plate: str,
-        person_email: EmailStr = Query(..., title="Person Email", description="Person Email")
+        person_email: EmailStr = Query(..., title="Person Email", description="Person Email"),
+        token_data: TokenData = Depends(get_current_user)
 ):
+    is_admin(token_data)
     person_search = await search_objects("persons", "email", person_email)
     if not person_search:
         raise HTTPException(
@@ -55,8 +62,10 @@ async def get_vehicle(
 @vehicle_router.post("/", response_model=Vehicle)
 async def create_vehicle(
         vehicle: Vehicle,
-        person_email: EmailStr = Query(..., title="Person Email", description="Person Email")
+        person_email: EmailStr = Query(..., title="Person Email", description="Person Email"),
+        token_data: TokenData = Depends(get_current_user)
 ):
+    is_admin(token_data)
     person_search = await search_objects("persons", "email", person_email)
     if not person_search:
         raise HTTPException(
@@ -85,8 +94,10 @@ async def create_vehicle(
 async def update_vehicle(
         patent_plate: str,
         updated_vehicle: Vehicle,
-        person_email: EmailStr = Query(..., title="Person Email", description="Person Email")
+        person_email: EmailStr = Query(..., title="Person Email", description="Person Email"),
+        token_data: TokenData = Depends(get_current_user)
 ):
+    is_admin(token_data)
     person_search = await search_objects("persons", "email", person_email)
     if not person_search:
         raise HTTPException(
@@ -110,8 +121,10 @@ async def update_vehicle(
 @vehicle_router.delete("/{patent_plate}", response_model=dict)
 async def delete_vehicle(
         patent_plate: str,
-        person_email: EmailStr = Query(..., title="Person Email", description="Person Email")
+        person_email: EmailStr = Query(..., title="Person Email", description="Person Email"),
+        token_data: TokenData = Depends(get_current_user)
 ):
+    is_admin(token_data)
     person_search = await search_objects("persons", "email", person_email)
     if not person_search:
         raise HTTPException(

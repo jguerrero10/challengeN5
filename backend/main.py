@@ -2,6 +2,8 @@ from typing import Dict
 
 from fastapi import FastAPI
 
+from routes.auth_routes import auth_router
+from routes.officer_routes import officer_router
 from routes.person_routes import person_router
 from routes.vehicle_routes import vehicle_router
 
@@ -12,8 +14,10 @@ app.version = "0.0.1"
 
 app.include_router(person_router, prefix="/person", tags=["Person"])
 app.include_router(vehicle_router, prefix="/vehicle", tags=["Vehicle"])
+app.include_router(officer_router, prefix="/officer", tags=["Officer"])
+app.include_router(auth_router, prefix="/auth", tags=["Auth"])
 
 
 @app.get("/")
 async def root() -> Dict[str, str]:
-    return {"message": "Challenger Dev Python Senior"}
+    return {"message": "Backend - Challenger Dev Python Senior"}

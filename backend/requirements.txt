@@ -1,2 +1,5 @@
 fastapi
 motor
+passlib[bcrypt]
+pydantic-settings
+python-jose[cryptography]
