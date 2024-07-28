@@ -7,7 +7,8 @@ from database.crud import search_objects, update_object
 from schemas.person_schemas import Person
 from schemas.user_schemas import TokenData
 from schemas.vehicle_schemas import Vehicle
-from utils.auth_utils import is_admin
+from utils.auth_utils import define_role
+from utils.enums import Role
 from utils.token_manage import get_current_user
 
 vehicle_router = APIRouter()
@@ -22,7 +23,7 @@ async def get_vehicles_by_person(
         ),
         token_data: TokenData = Depends(get_current_user)
 ):
-    is_admin(token_data)
+    define_role(token_data, Role.ADMIN)
     person_search = await search_objects("persons", "email", person_email)
     if not person_search:
         raise HTTPException(
@@ -40,7 +41,7 @@ async def get_vehicle(
         person_email: EmailStr = Query(..., title="Person Email", description="Person Email"),
         token_data: TokenData = Depends(get_current_user)
 ):
-    is_admin(token_data)
+    define_role(token_data, Role.ADMIN)
     person_search = await search_objects("persons", "email", person_email)
     if not person_search:
         raise HTTPException(
@@ -65,7 +66,7 @@ async def create_vehicle(
         person_email: EmailStr = Query(..., title="Person Email", description="Person Email"),
         token_data: TokenData = Depends(get_current_user)
 ):
-    is_admin(token_data)
+    define_role(token_data, Role.ADMIN)
     person_search = await search_objects("persons", "email", person_email)
     if not person_search:
         raise HTTPException(
@@ -97,7 +98,7 @@ async def update_vehicle(
         person_email: EmailStr = Query(..., title="Person Email", description="Person Email"),
         token_data: TokenData = Depends(get_current_user)
 ):
-    is_admin(token_data)
+    define_role(token_data, Role.ADMIN)
     person_search = await search_objects("persons", "email", person_email)
     if not person_search:
         raise HTTPException(
@@ -124,7 +125,7 @@ async def delete_vehicle(
         person_email: EmailStr = Query(..., title="Person Email", description="Person Email"),
         token_data: TokenData = Depends(get_current_user)
 ):
-    is_admin(token_data)
+    define_role(token_data, Role.ADMIN)
     person_search = await search_objects("persons", "email", person_email)
     if not person_search:
         raise HTTPException(

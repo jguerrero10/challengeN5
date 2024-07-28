@@ -15,8 +15,8 @@ async def authenticate_user(username: str, password: str):
     return user[0]
 
 
-def is_admin(token_data: TokenData):
-    if token_data.role != Role.ADMIN:
+def define_role(token_data: TokenData, role: Role):
+    if token_data.role != role:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="You do not have permissions to access this resource",

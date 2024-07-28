@@ -1,7 +1,9 @@
+from datetime import datetime
 from typing import Annotated, Optional, List
 
 from pydantic import BaseModel, BeforeValidator, EmailStr, Field
 
+from schemas.traffic_violations_schemas import TrafficViolations
 from schemas.vehicle_schemas import Vehicle
 
 PyObjectId = Annotated[str, BeforeValidator(str)]
@@ -12,6 +14,11 @@ class Person(BaseModel):
     name: str = Field(..., title="Name", description="Person's name")
     email: EmailStr = Field(..., title="Email", description="Person's email")
     vehicles: Optional[List[Vehicle]] = Field([], title="Vehicles", description="Person's vehicles")
+    traffic_violations: Optional[List[TrafficViolations]] = Field(
+        [],
+        title="Traffic Violations",
+        description="Person's traffic violations"
+    )
 
     model_config = {
         "json_schema_extra": {
@@ -25,6 +32,13 @@ class Person(BaseModel):
                         "brand": "Sandero",
                         "color": "Blue",
                     }
+                ],
+                "traffic_violations": [
+                        {
+                            "patent_plate": "KXR243",
+                            "timestamp": datetime.now(),
+                            "comments": "Lorem ipsum dolor sit amet..",
+                        }
                 ]
             }
         }

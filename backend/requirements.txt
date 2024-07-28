@@ -2,4 +2,6 @@ fastapi
 motor
 passlib[bcrypt]
 pydantic-settings
+pymongo
 python-jose[cryptography]
+typer

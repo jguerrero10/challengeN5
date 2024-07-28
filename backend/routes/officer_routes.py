@@ -5,7 +5,7 @@ from fastapi import APIRouter, HTTPException, status, Depends
 from database.crud import get_all_objects, search_objects, add_object, update_object, delete_object
 from schemas.officer_schemas import Officer, OfficerCreate, OfficerUpdate
 from schemas.user_schemas import TokenData
-from utils.auth_utils import is_admin
+from utils.auth_utils import define_role
 from utils.enums import Role
 from utils.hash_password_utils import get_password_hash
 from utils.token_manage import get_current_user
@@ -15,13 +15,13 @@ officer_router = APIRouter()
 
 @officer_router.get("/", response_model=List[Officer])
 async def get_officers(token_data: TokenData = Depends(get_current_user)):
-    is_admin(token_data)
+    define_role(token_data, Role.ADMIN)
     return await get_all_objects("officers")
 
 
 @officer_router.get("/{number_identifier}", response_model=Officer)
 async def get_officer(number_identifier: str, token_data: TokenData = Depends(get_current_user)):
-    is_admin(token_data)
+    define_role(token_data, Role.ADMIN)
     search_officer = await search_objects(
         "officers",
         "number_identifier",
@@ -35,16 +35,17 @@ async def get_officer(number_identifier: str, token_data: TokenData = Depends(ge
 
 @officer_router.post("/", response_model=Officer)
 async def create_officer(officer: OfficerCreate, token_data: TokenData = Depends(get_current_user)):
-    is_admin(token_data)
+    define_role(token_data, Role.ADMIN)
     search_person = await search_objects(
         "officers",
         "number_identifier",
         officer.number_identifier
     )
-    if search_person:
+    search_user = await search_objects("users", "username", officer.username)
+    if search_person or search_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Officer already exists"
+            detail="Officer or user already exists"
         )
     officer_added = await add_object("officers", dict(officer))
     await add_object(
@@ -64,7 +65,7 @@ async def update_officer(
         officer: OfficerUpdate,
         token_data: TokenData = Depends(get_current_user)
 ):
-    is_admin(token_data)
+    define_role(token_data, Role.ADMIN)
     search_officer = await search_objects(
         "officers",
         "number_identifier",
@@ -80,7 +81,7 @@ async def update_officer(
 
 @officer_router.delete("/{number_identifier}")
 async def delete_officer(number_identifier: str, token_data: TokenData = Depends(get_current_user)):
-    is_admin(token_data)
+    define_role(token_data, Role.ADMIN)
     search_officer = await search_objects(
         "officers",
         "number_identifier",
