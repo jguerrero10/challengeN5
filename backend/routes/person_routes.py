@@ -27,10 +27,13 @@ async def get_persons(token_data: TokenData = Depends(get_current_user)) -> List
 @person_router.get("/{person_id}", response_model=Person)
 async def get_person(person_id: str, token_data: TokenData = Depends(get_current_user)) -> Any:
     define_role(token_data, Role.ADMIN)
+    person = await get_object("persons", person_id)
+    if not person:
+        raise HTTPException(status_code=404, detail="Person not found")
     return await get_object("persons", person_id)
 
 
-@person_router.post("/", response_model=Person)
+@person_router.post("/", response_model=Person, status_code=status.HTTP_201_CREATED)
 async def create_person(person: PersonCreate, token_data: TokenData = Depends(get_current_user)) -> Any:
     define_role(token_data, Role.ADMIN)
     search_person = await search_objects("persons", "email", person.email)

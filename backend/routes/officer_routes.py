@@ -33,7 +33,7 @@ async def get_officer(number_identifier: str, token_data: TokenData = Depends(ge
     return search_officer[0]
 
 
-@officer_router.post("/", response_model=Officer)
+@officer_router.post("/", response_model=Officer, status_code=status.HTTP_201_CREATED)
 async def create_officer(officer: OfficerCreate, token_data: TokenData = Depends(get_current_user)):
     define_role(token_data, Role.ADMIN)
     search_person = await search_objects(

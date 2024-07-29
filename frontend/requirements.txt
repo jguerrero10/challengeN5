@@ -1,0 +1,6 @@
+pandas
+pydantic
+pydantic-settings
+requests
+streamlit
+streamlit-authenticator

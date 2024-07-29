@@ -60,7 +60,7 @@ async def get_vehicle(
     )
 
 
-@vehicle_router.post("/", response_model=Vehicle)
+@vehicle_router.post("/", response_model=Vehicle, status_code=status.HTTP_201_CREATED)
 async def create_vehicle(
         vehicle: Vehicle,
         person_email: EmailStr = Query(..., title="Person Email", description="Person Email"),
@@ -87,6 +87,14 @@ async def create_vehicle(
     vehicles_dict = [dict(vehicle) for vehicle in vehicles]
     person_dict = dict(person)
     person_dict["vehicles"] = vehicles_dict
+    person_dict["traffic_violations"] = [
+        {
+            "patent_plate": traffic_violation.patent_plate,
+            "timestamp": traffic_violation.timestamp,
+            "comments": traffic_violation.comments,
+            "officer": dict(traffic_violation.officer)
+        }
+        for traffic_violation in person.traffic_violations] if person.traffic_violations else []
     await update_object("persons", person.id, person_dict)
     return vehicle
 
