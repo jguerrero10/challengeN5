@@ -2,6 +2,8 @@
 
 This project is a web application with a frontend built using Streamlit and a backend built using FastAPI. The application also uses MongoDB as its database.
 
+[Watch the video explanation here](https://share.vidyard.com/watch/hszSdVRWHSGr38X3YfQw46?)
+
 ## Prerequisites
 
 - Docker
